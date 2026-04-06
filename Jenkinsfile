@@ -45,6 +45,8 @@ pipeline {
                     """
                     sh """
                         docker run -d --name ${IMAGE_NAME} \
+                            -e HOST=0.0.0.0 \
+                            -e PORT=3000 \
                             --expose ${APP_PORT} \
                             -p ${APP_PORT}:3000 \
                             ${IMAGE_NAME}:v1.0
