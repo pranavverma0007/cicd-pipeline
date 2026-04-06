@@ -5,11 +5,6 @@ pipeline {
         nodejs 'Node7.8.0'
     }
 
-    environment {
-        IMAGE_NAME = (env.BRANCH_NAME == 'main') ? 'nodemain' : 'nodedev'
-        APP_PORT   = (env.BRANCH_NAME == 'main') ? '3000'     : '3001'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -32,24 +27,30 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${IMAGE_NAME}:v1.0 ."
+                script {
+                    def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain' : 'nodedev'
+                    sh "docker build -t ${imageName}:v1.0 ."
+                }
             }
         }
 
         stage('Deploy') {
             steps {
                 script {
+                    def imageName = (env.BRANCH_NAME == 'main') ? 'nodemain' : 'nodedev'
+                    def appPort   = (env.BRANCH_NAME == 'main') ? '3000'     : '3001'
+
                     sh """
-                        docker ps -q --filter name=${IMAGE_NAME} | xargs -r docker stop
-                        docker ps -aq --filter name=${IMAGE_NAME} | xargs -r docker rm
+                        docker ps -q --filter name=${imageName} | xargs -r docker stop
+                        docker ps -aq --filter name=${imageName} | xargs -r docker rm
                     """
                     sh """
-                        docker run -d --name ${IMAGE_NAME} \
+                        docker run -d --name ${imageName} \
                             -e HOST=0.0.0.0 \
                             -e PORT=3000 \
-                            --expose ${APP_PORT} \
-                            -p ${APP_PORT}:3000 \
-                            ${IMAGE_NAME}:v1.0
+                            --expose ${appPort} \
+                            -p ${appPort}:3000 \
+                            ${imageName}:v1.0
                     """
                 }
             }
@@ -57,7 +58,7 @@ pipeline {
     }
 
     post {
-        success { echo "Deployed ${IMAGE_NAME}:v1.0 on port ${APP_PORT}" }
+        success { echo "Pipeline succeeded for branch ${env.BRANCH_NAME}" }
         failure { echo "Pipeline failed for branch ${env.BRANCH_NAME}" }
-    }
+   }
 }
