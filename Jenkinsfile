@@ -26,7 +26,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'npm test'
+                sh 'CI=true npm test'
             }
         }
 
