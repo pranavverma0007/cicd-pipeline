@@ -1,5 +1,5 @@
-FROM node:7.8.0
+FROM node:20-alpine
 WORKDIR /opt
 ADD . /opt
-RUN npm install
-ENTRYPOINT npm run start
+RUN npm install --legacy-peer-deps
+ENTRYPOINT ["npm", "run", "start"]
