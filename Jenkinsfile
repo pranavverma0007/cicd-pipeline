@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'Node7.8.0'
+        nodejs 'Node20'
     }
 
     stages {
@@ -15,7 +15,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'npm install'
+                sh 'npm install --legacy-peer-deps'
             }
         }
 
@@ -60,5 +60,5 @@ pipeline {
     post {
         success { echo "Pipeline succeeded for branch ${env.BRANCH_NAME}" }
         failure { echo "Pipeline failed for branch ${env.BRANCH_NAME}" }
-   }
+    }
 }
